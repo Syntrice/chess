@@ -2,6 +2,7 @@ package com.syntrice.chess.gui;
 
 import com.syntrice.chess.Tile;
 import com.syntrice.chess.coordinate.Coordinate;
+import com.syntrice.chess.piece.Piece;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +19,7 @@ public class Board extends JPanel implements MouseListener {
         GRID = new Tile[GRID_WIDTH][GRID_HEIGHT];
         initializeGrid();
         repaint();
+        placePieces();
         this.addMouseListener(this);
     }
 
@@ -51,14 +53,25 @@ public class Board extends JPanel implements MouseListener {
      * @param g graphics to draw to
      */
     private void paintGrid(Graphics g) {
-        for (int r = 0; r < GRID_WIDTH; r++) {
-            for (int c = 0; c < GRID_HEIGHT; c++) {
-                if (GRID[r][c].getColor() == com.syntrice.chess.Color.WHITE) {
+        for (int x = 0; x < GRID_WIDTH; x++) {
+            for (int y = 0; y < GRID_HEIGHT; y++) {
+                if (GRID[x][y].getColor() == com.syntrice.chess.Color.WHITE) {
                     g.setColor(java.awt.Color.WHITE);
                 } else {
                     g.setColor(java.awt.Color.BLACK);
                 }
-                g.fillRect(tileWidth * c, tileHeight * r, tileWidth, tileHeight);
+                g.fillRect(tileWidth * x, tileHeight * y, tileWidth, tileHeight);
+
+                if (GRID[x][y].hasPiece()) {
+                    if (GRID[x][y].getPiece().getColor() == com.syntrice.chess.Color.WHITE) {
+                        g.setColor(Color.lightGray);
+                    } else {
+                        g.setColor(Color.red);
+                    }
+                    g.fillOval(tileWidth * x, tileHeight * y, tileWidth, tileHeight);
+                }
+
+
             }
         }
     }
@@ -67,9 +80,23 @@ public class Board extends JPanel implements MouseListener {
      * Fills the grid with new tiles in a checkered pattern, corresponding to the given size.
      */
     private void initializeGrid() {
-        for (int r = 0; r < GRID_WIDTH; r++) {
-            for (int c = 0; c < GRID_HEIGHT; c++) {
-                GRID[r][c] = (r + c) % 2 == 0 ? new Tile(com.syntrice.chess.Color.WHITE, new Coordinate(r,c)) : new Tile(com.syntrice.chess.Color.BLACK, new Coordinate(r,c));
+        for (int x = 0; x < GRID_WIDTH; x++) {
+            for (int y = 0; y < GRID_HEIGHT; y++) {
+                GRID[x][y] = (x + y) % 2 == 0 ? new Tile(com.syntrice.chess.Color.WHITE, new Coordinate(x,y)) : new Tile(com.syntrice.chess.Color.BLACK, new Coordinate(x,y));
+            }
+        }
+    }
+
+    private void placePieces() {
+        for (int x = 0; x < GRID_WIDTH; x++) {
+            for (int y = 0; y < 2; y++) {
+                GRID[x][y].setPiece(new Piece(com.syntrice.chess.Color.WHITE));
+            }
+        }
+
+        for (int x = 0; x < GRID_WIDTH; x++) {
+            for (int y = GRID_HEIGHT - 1; y > GRID_HEIGHT - 3; y--) {
+                GRID[x][y].setPiece(new Piece(com.syntrice.chess.Color.BLACK));
             }
         }
     }
@@ -79,10 +106,17 @@ public class Board extends JPanel implements MouseListener {
         System.out.println("Click at X Coordinate: " + e.getX() / tileWidth + ", Y Coordinate: " + e.getY() / tileHeight);
         int x = e.getX() / tileWidth;
         int y = e.getY() / tileHeight;
-        if (GRID[y][x].getColor() == com.syntrice.chess.Color.WHITE) {
-            GRID[y][x].setColor(com.syntrice.chess.Color.BLACK);
-        } else {
-            GRID[y][x].setColor(com.syntrice.chess.Color.WHITE);
+        if (!GRID[x][y].hasPiece()) {
+            if (e.getButton() == MouseEvent.BUTTON3) {
+                GRID[x][y].setPiece(new Piece(com.syntrice.chess.Color.WHITE));
+            }
+
+            if (e.getButton() == MouseEvent.BUTTON1) {
+                GRID[x][y].setPiece(new Piece(com.syntrice.chess.Color.BLACK));
+            }
+        }
+        else {
+            GRID[x][y].removePiece();
         }
         repaint();
     }

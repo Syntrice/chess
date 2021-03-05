@@ -8,6 +8,8 @@ import java.awt.*;
 
 public class Application extends JFrame {
 
+    public static final String TITLE = "Syntrice Chess";
+
     Board board = new Board();
     Sidebar sidebar = new Sidebar();
 
@@ -23,6 +25,7 @@ public class Application extends JFrame {
         Application application = new Application();
         application.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         //application.setResizable(false);
+        application.setTitle(TITLE);
         application.setVisible(true);
     }
 }
